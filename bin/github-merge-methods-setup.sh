@@ -42,7 +42,7 @@ methods=("merge" "squash" "rebase")
 for method in "${methods[@]}"; do
   branch="$method-example"
   echo "========================================="
-  echo "Processing branch: $branch"
+  echo "Creating branch with commits: $branch"
   
   fn="$branch.md"
 
@@ -62,8 +62,19 @@ for method in "${methods[@]}"; do
   git commit -m "$branch commit 2"
   
   # Push branch
-  git push origin "$branch"
-  
+  git push -u origin "$branch"
+done
+
+echo "========================================="
+echo "All branches created:"
+git branch -vv
+
+# Create PRs for each method branch
+for method in "${methods[@]}"; do
+  branch="$method-example"
+  echo "========================================="
+  echo "Creating PR for branch: $branch"
+
   # Create PR
   gh pr create \
     --title "Example: $branch" \
@@ -74,11 +85,11 @@ for method in "${methods[@]}"; do
   # Merge using the appropriate method
   echo "Merging PR with --$method method..."
   gh pr merge "$branch" "--$method"
-  
-  # Update local main branch
-  git checkout main
-  git pull origin main
 done
+
+# Update local main branch
+git checkout main
+git pull origin main
 
 echo "=========================================="
 echo "Setup complete"
