@@ -36,7 +36,7 @@ git commit -m "Initial commit"
 git push -u origin main
 
 # Array of merge methods
-methods=("merge" "squash" "rebase")
+methods=("merge" "squash" "rebase" "squash-merge")
 
 # Process each method
 for method in "${methods[@]}"; do
@@ -65,6 +65,7 @@ for method in "${methods[@]}"; do
   git push -u origin "$branch"
 done
 
+git checkout main
 echo "========================================="
 echo "All branches created:"
 git branch -vv
@@ -84,6 +85,14 @@ for method in "${methods[@]}"; do
   
   # Merge using the appropriate method
   echo "Merging PR with --$method method..."
+  if [ "$method" == "squash-merge" ]; then
+    git checkout "$branch"
+    git reset --soft main
+    git commit -m "Squashed commits on $branch"
+    git push --force
+    git checkout main
+    method="merge"
+  fi
   gh pr merge "$branch" "--$method"
 done
 
@@ -95,3 +104,4 @@ echo "=========================================="
 echo "Setup complete"
 echo "Repository: https://github.com/$(gh repo view --json owner -q .owner.login)/$REPO_NAME"
 echo "All three PRs have been created and merged using their respective methods"
+

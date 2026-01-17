@@ -4,9 +4,16 @@ Demonstrates merge commit, squash merge, and rebase merge methods using an autom
 
 ## Generating the merge-test repo
 
-    ./bin/github-merge-methods-setup.sh
+`./bin/github-merge-methods-setup.sh` generates a `merge-test` repo that
+demonstrates merge strategies and practices.  You don't need to execute this in
+order to understand the results, but it will help to understand what it does. 
 
-Note: this will delete a local and remote repo called `merge-test` in your github account. You must have authenticated with `gh` already.
+The script generates 4 branches, each with two commits, pushes the branches, and then merges those branches into main. The branches are:
+
+    - merge-example: merge strategy
+    - squash-example: squash strategy
+    - rebase-example: rebase strategy
+    - squash-merge-example: explicit squashing before merge
 
 ## Results
 
@@ -17,16 +24,18 @@ Running the above script results in this simple repo commit graph:
 The -example branches remain even though they have been merged.
 
     » git branch -vv
-    * main           4cdfffb [origin/main] rebase-example commit 2
-    merge-example  408a938 [origin/merge-example: gone] merge-example commit 2
-    rebase-example f74d2bb [origin/rebase-example: gone] rebase-example commit 2
-    squash-example 0f4aa4c [origin/squash-example: gone] squash-example commit 2
+    * main                 8b6082d [origin/main] Merge pull request #4 from reece/squash-merge-example
+    merge-example        1f49bc7 [origin/merge-example] merge-example commit 2
+    rebase-example       06d1c52 [origin/rebase-example] rebase-example commit 2
+    squash-example       1dd8ff0 [origin/squash-example] squash-example commit 2
+    squash-merge-example dabcaf7 [origin/squash-merge-example] Squashed commits on squash-merge-example
 
     » git branch --merged
     * main
     merge-example
+    squash-merge-example
 
-`git fetch --prune` does not clean up these local branches.
+`git fetch --prune` does not clean up local branches. However, there are known recipes for cleaning up local branches using `git branch --merged`. 
 
 ## Discussion
 
@@ -40,7 +49,7 @@ Each merge method has pros and cons, some of which can be mitigated, as summariz
 | **Squash Merge** | Single commit containing all changes | Clean linear history, easy to revert, clear feature boundaries | Leaves dangling local branches that can't be easily cleaned up, loses detailed history, harder to debug, no individual credit for collaborative efforts | Keep feature branches for reference, write detailed squash commit messages, link to PR for full history | [Kubernetes](https://www.kubernetes.dev/docs/guide/github-workflow/) |
 | **Rebase Merge** | Linear history with individual commits | Clean history, preserves individual commits, easy to follow | Leaves dangling local branches that can't be easily cleaned up, rewrites history (dangerous if shared), conflicts per commit | Never rebase shared branches, communicate rebase plans, use feature flags for long-running work  | [Django](https://docs.djangoproject.com/en/dev/internals/contributing/writing-code/working-with-git/), [Rails](https://guides.rubyonrails.org/contributing_to_ruby_on_rails.html) |
 
-As mentioned above, we should have only one merge method.  If that method is squash or rebase, we necessarily lose commit information and we are left with orphan local branches that are difficult to clean up. Furthermore, there is no workaround for these deficits.  On the other hand, merge commits provide the flexibility to squash if the developer desires it or the reviewer requires it.
+As mentioned above, we should have only one merge method.  If that method is squash or rebase, we necessarily lose commit information and we are left with orphan local branches that are difficult to clean up. Furthermore, there is no workaround for these deficits.  On the other hand, merge commits provide the flexibility to squash if the developer desires it or the reviewer requires it; that method and result is demonstrated in the squash-merge-example.
 
 These are the reasons that biocommons projects use merge commits and disables the other merge options.
 
